@@ -1,9 +1,7 @@
 //
 //  Publishers+TryMapGeneric.swift
-//  aarons
 //
 //  Created by Rashaad Ramdeen on 5/6/21.
-//  Copyright © 2021 Aaron's, LLC. All rights reserved.
 //
 
 import Foundation

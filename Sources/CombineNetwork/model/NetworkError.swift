@@ -1,13 +1,14 @@
 //
 //  NetworkError.swift
-//  aarons
 //
 //  Created by Rashaad Ramdeen on 11/12/20.
-//  Copyright © 2020 Aaron's Inc. All rights reserved.
 //
 
 import Foundation
 
+/**
+ Universal enum for handling NetworkErrors
+ */
 enum NetworkError: Error, Equatable {
     case error4xx(_ code: Int)
     case error5xx(_ code: Int)
@@ -19,7 +20,6 @@ enum NetworkError: Error, Equatable {
     case unauthorized
     case forbidden
     case notFound
-    case serverError
     case unknown
     
     static func handleError(error: Error) -> NetworkError {
@@ -42,8 +42,7 @@ enum NetworkError: Error, Equatable {
         case 403: return .forbidden
         case 404: return .notFound
         case 402, 405...499: return .error4xx(statusCode)
-        case 500: return .serverError
-        case 501...599: return .error5xx(statusCode)
+        case 500...599: return .error5xx(statusCode)
         default:
             return .unknown
         }
@@ -64,7 +63,6 @@ enum NetworkError: Error, Equatable {
              (.unauthorized, .unauthorized),
              (.forbidden, .forbidden),
              (.notFound, .notFound),
-             (.serverError, .serverError),
              (.unknown, .unknown):
             return true
         default:
@@ -72,38 +70,3 @@ enum NetworkError: Error, Equatable {
         }
     }
 }
-
-/**
- ServerError represents the new server side error JSON response. For errors that have
- user specific information as to why something failed (like credit card failures) we should
- use this error type.
- */
-struct ServerError: Codable {
-    let error: String?
-    let message: String?
-    let description: String?
-    let errorDescription: String?
-    let responseStatus: ResponseStatus?
-
-    enum CodingKeys: String, CodingKey {
-        case error
-        case message
-        case description
-        case responseStatus
-        case errorDescription = "error_description"
-    }
-
-    var displayString: String {
-        let err = self.error ?? ""
-        let message = self.message ?? ""
-        let description = self.description ?? ""
-        let errorDesc = self.errorDescription ?? ""
-        let responseStatusMessage = self.responseStatus?.message ?? ""
-        return "\(err) \(message) \(description) \(errorDesc) \(responseStatusMessage)"
-    }
-}
-
-struct ResponseStatus: Codable {
-    let message: String?
-}
-

@@ -1,9 +1,7 @@
 //
 //  Publishers+Networking.swift
-//  aarons
 //
 //  Created by Rashaad Ramdeen on 4/23/21.
-//  Copyright © 2021 Aaron's, LLC. All rights reserved.
 //
 
 import Foundation
@@ -55,7 +53,7 @@ extension Publishers {
                 switch e {
                 case .unauthorized:
                     guard let refreshTokenPublisher = refreshTokenPublisherProvider?.refreshTokenPublisher() else {
-                        return API.sessionBuilder.session
+                        return sessionBuilder.session
                         .dataTaskPublisher(for: requestBuilder.urlRequest)
                         .mapError { e in .handleError(error: e) }
                         .receive(on: DispatchQueue.main)
@@ -65,7 +63,7 @@ extension Publishers {
                     
                     #warning("use async await here")
                     return refreshTokenPublisher.flatMap { response in
-                            API.sessionBuilder.session
+                            sessionBuilder.session
                             .dataTaskPublisher(for: requestBuilder.urlRequest)
                             .mapError { e in .handleError(error: e) }
                             .receive(on: DispatchQueue.main)

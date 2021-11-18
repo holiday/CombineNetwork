@@ -1,9 +1,7 @@
 //
 //  RequestBuilder.swift
-//  aarons
 //
 //  Created by Rashaad Ramdeen on 2/16/21.
-//  Copyright © 2021 Aaron's Inc. All rights reserved.
 //
 
 import Foundation
