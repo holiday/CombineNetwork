@@ -7,16 +7,16 @@
 import Foundation
 import Combine
 
-extension Publisher {
+public extension Publisher {
     func tryMap<T>(to type: T.Type, readingOptions: JSONSerialization.ReadingOptions = []) -> Publishers.TryMapGeneric<T, Self> {
         return .init(type: type, upstream: self, readingOptions: [])
     }
 }
 
-extension Publishers {
+public extension Publishers {
     struct TryMapGeneric<T, Upstream: Publisher>: Publisher where Upstream.Output == URLSession.DataTaskPublisher.Output {
-        typealias Output = T
-        typealias Failure = NetworkError
+        public typealias Output = T
+        public typealias Failure = NetworkError
         
         private var type: T.Type
         private var upstream: Upstream
@@ -28,7 +28,7 @@ extension Publishers {
             self.readingOptions = readingOptions
         }
         
-        func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
+        public func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
             upstream
             .map(\.data)
             .tryMap { (data) -> T in

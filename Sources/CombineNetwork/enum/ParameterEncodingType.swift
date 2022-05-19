@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum ParameterEncodingType {
+public enum ParameterEncodingType {
     case urlEncoding
     case jsonEncoding(options: JSONSerialization.WritingOptions = [])
 }

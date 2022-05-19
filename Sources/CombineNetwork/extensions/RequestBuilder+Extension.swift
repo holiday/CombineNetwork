@@ -7,7 +7,7 @@
 import Foundation
 import Combine
 
-extension RequestBuilder {
+public extension RequestBuilder {
     /**
      Default HTTPMethod GET
      */

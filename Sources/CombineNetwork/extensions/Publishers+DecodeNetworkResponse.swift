@@ -7,16 +7,16 @@
 import Foundation
 import Combine
 
-extension Publisher where Self.Output == URLSession.DataTaskPublisher.Output, Self.Failure == NetworkError {
+public extension Publisher where Self.Output == URLSession.DataTaskPublisher.Output, Self.Failure == NetworkError {
     func decodeNetworkResponse<T: Decodable>(decodable: T.Type, decoder: JSONDecoder = JSONDecoder()) -> Publishers.DecodeNetworkResponse<T, Self> {
         return Publishers.DecodeNetworkResponse.init(decodable: decodable, upstream: self, decoder: decoder)
     }
 }
 
-extension Publishers {
+public extension Publishers {
     struct DecodeNetworkResponse<T: Decodable, Upstream: Publisher>: Publisher where Upstream.Output == URLSession.DataTaskPublisher.Output {
-        typealias Output = NetworkResponse<T>
-        typealias Failure = NetworkError
+        public typealias Output = NetworkResponse<T>
+        public typealias Failure = NetworkError
         
         private let decodable: T.Type
         private let upstream: Upstream
@@ -28,7 +28,7 @@ extension Publishers {
             self.decoder = decoder
         }
         
-        func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
+        public func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
             upstream.tryMap { (output) -> NetworkResponse<T> in
                 do {
                     let decoded = try decoder.decode(self.decodable, from: output.data)

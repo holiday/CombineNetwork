@@ -7,7 +7,7 @@
 import Foundation
 import Combine
 
-extension URLSession {
+public extension URLSession {
     static func dataTaskPublisher(urlsession: URLSession, requestBuilder: RequestBuilder) -> AnyPublisher<URLSession.DataTaskPublisher.Output, URLSession.DataTaskPublisher.Failure> {
         
         //Check if this request requires authentication        

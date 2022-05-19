@@ -7,25 +7,25 @@
 import Foundation
 import Combine
 
-var sessionBuilder: SessionBuilder = DefaultSessionBuilder(timeout: 30)
+public var sessionBuilder: SessionBuilder = DefaultSessionBuilder(timeout: 30)
 
-var validHttpStatusCodes: ClosedRange<Int> { 200...399 }
+public var validHttpStatusCodes: ClosedRange<Int> { 200...399 }
 
 /**
  In some cases you may want to disable the unauthorizedPassThroughSubject from firing
  */
-var enableUnauthorizedPassThroughSubject = false
+public var enableUnauthorizedPassThroughSubject = false
 
 /**
  Allows you to perform a final action before fully failing 100% (i.e. all retry attempts to recovery has failed)
  */
-var unauthorizedPassThroughSubject: PassthroughSubject<NetworkError, Never>?
+public var unauthorizedPassThroughSubject: PassthroughSubject<NetworkError, Never>?
 
-var tokenExpiredOrMissing: Bool {
+public var tokenExpiredOrMissing: Bool {
     return false
 }
 
-func fetch(
+public func fetch(
     requestBuilder: RequestBuilder,
     retries: Int = 2,
     receiveSubscription: ((Subscription) -> Void)? = nil) -> AnyPublisher<URLSession.DataTaskPublisher.Output, NetworkError> {
@@ -61,7 +61,7 @@ func fetch(
         .eraseToAnyPublisher()
 }
 
-func fetch<T: Decodable>(
+public func fetch<T: Decodable>(
     requestBuilder: RequestBuilder,
     retries: Int = 2,
     decodableType: T.Type) -> AnyPublisher<NetworkResponse<T>, NetworkError> {

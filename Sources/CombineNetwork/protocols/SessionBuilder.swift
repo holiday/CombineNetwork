@@ -6,7 +6,7 @@
 
 import Foundation
 
-protocol SessionBuilder {
+public protocol SessionBuilder {
     var session: URLSession { get }
     var config: URLSessionConfiguration { get }
 }

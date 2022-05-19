@@ -6,18 +6,18 @@
 
 import Foundation
 
-struct DefaultSessionBuilder: SessionBuilder {
+public struct DefaultSessionBuilder: SessionBuilder {
     
     var timeout: Int
     var allowsConstrainedNetworkAccess: Bool = false
     
-    var session: URLSession {
+    public var session: URLSession {
         //A Boolean value that indicates whether connections may use the network when the user has specified Low Data Mode.
         config.allowsConstrainedNetworkAccess = allowsConstrainedNetworkAccess
         return URLSession(configuration: config)
     }
     
-    var config: URLSessionConfiguration {
+    public var config: URLSessionConfiguration {
         let config = URLSessionConfiguration.default
         config.timeoutIntervalForRequest = TimeInterval(timeout)
         return config

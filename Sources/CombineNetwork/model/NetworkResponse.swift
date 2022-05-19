@@ -10,7 +10,7 @@ import Foundation
 /**
  Generic NetworkResponse wrapper
  */
-struct NetworkResponse<T> {
+public struct NetworkResponse<T> {
     let value: T
     let response: URLResponse
 }

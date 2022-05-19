@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol RequestBuilder {
+public protocol RequestBuilder {
     var url: URL { get }
     var httpMethod: HTTPMethod { get }
     var headers: [String: String] { get }

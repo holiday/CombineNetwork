@@ -10,7 +10,7 @@ import Combine
 /**
  RequestRetryPublisher convenience method
  */
-extension Publisher where Self.Output == URLSession.DataTaskPublisher.Output, Self.Failure == NetworkError {
+public extension Publisher where Self.Output == URLSession.DataTaskPublisher.Output, Self.Failure == NetworkError {
     func requestRetry(retries: Int, requestBuilder: RequestBuilder) -> Publishers.RequestRetryPublisher<Self> {
         return Publishers.RequestRetryPublisher(upstream: self, retries: retries, requestBuilder: requestBuilder)
     }
@@ -21,17 +21,17 @@ extension Publisher where Self.Output == URLSession.DataTaskPublisher.Output, Se
  decople or dependency inject the Publisher that will ultimately make the
  request to refresh token. We are now able to inject a custom provider for testing purposes
  */
-protocol RefreshTokenPublisherProvider {
+public protocol RefreshTokenPublisherProvider {
     func refreshTokenPublisher() -> AnyPublisher<URLSession.DataTaskPublisher.Output, NetworkError>
 }
 
 /**
  RequestRetryPublisher
  */
-extension Publishers {
+public extension Publishers {
     struct RequestRetryPublisher<Upstream: Publisher>: Publisher where Upstream.Output == URLSession.DataTaskPublisher.Output, Upstream.Failure == NetworkError {
-        typealias Output = URLSession.DataTaskPublisher.Output
-        typealias Failure = NetworkError
+        public typealias Output = URLSession.DataTaskPublisher.Output
+        public typealias Failure = NetworkError
         
         let upstream: Upstream
         let retries: Int
@@ -45,7 +45,7 @@ extension Publishers {
             self.refreshTokenPublisherProvider = refreshTokenPublisherProvider
         }
         
-        func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
+        public func receive<S>(subscriber: S) where S: Subscriber, Self.Failure == S.Failure, Self.Output == S.Input {
             upstream
             .catch { e -> AnyPublisher<Output, Failure> in
                 guard retries > 0 else { return Fail(error: e).eraseToAnyPublisher() }

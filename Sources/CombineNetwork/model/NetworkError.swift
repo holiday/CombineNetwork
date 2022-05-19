@@ -9,7 +9,7 @@ import Foundation
 /**
  Universal enum for handling NetworkErrors
  */
-enum NetworkError: Error, Equatable {
+public enum NetworkError: Error, Equatable {
     case error4xx(_ code: Int)
     case error5xx(_ code: Int)
     case urlError(_ urlError: URLError)
@@ -22,7 +22,7 @@ enum NetworkError: Error, Equatable {
     case notFound
     case unknown
     
-    static func handleError(error: Error) -> NetworkError {
+    public static func handleError(error: Error) -> NetworkError {
         switch error {
         case is Swift.DecodingError:
             return .decodingCodable
@@ -35,7 +35,7 @@ enum NetworkError: Error, Equatable {
         }
     }
     
-    static func map(_ statusCode: Int) -> NetworkError {
+    public static func map(_ statusCode: Int) -> NetworkError {
         switch statusCode {
         case 400: return .badRequest
         case 401: return .unauthorized
@@ -48,7 +48,7 @@ enum NetworkError: Error, Equatable {
         }
     }
     
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         switch (lhs, rhs) {
         case (.error4xx(let lhsCode), .error4xx(let rhsCode)):
             return lhsCode == rhsCode
