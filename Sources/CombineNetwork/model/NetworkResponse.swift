@@ -11,6 +11,6 @@ import Foundation
  Generic NetworkResponse wrapper
  */
 public struct NetworkResponse<T> {
-    let value: T
-    let response: URLResponse
+    public let value: T
+    public let response: URLResponse
 }
