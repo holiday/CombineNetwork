@@ -25,50 +25,54 @@ public var tokenExpiredOrMissing: Bool {
     return false
 }
 
-public func fetch(
-    requestBuilder: RequestBuilder,
-    retries: Int = 2,
-    receiveSubscription: ((Subscription) -> Void)? = nil) -> AnyPublisher<URLSession.DataTaskPublisher.Output, NetworkError> {
-    return
-        URLSession.dataTaskPublisher(urlsession: sessionBuilder.session, requestBuilder: requestBuilder)
-        .tryMap { output in
-            /// Verify that we got an HTTP Response and its status code is within the valid range, otherwise throw a NetworkError with status code
-            if let httpResponse = output.response as? HTTPURLResponse, !validHttpStatusCodes.contains(httpResponse.statusCode) {
-                throw NetworkError.map(httpResponse.statusCode)
+public struct CN {
+    public static func fetch(
+        requestBuilder: RequestBuilder,
+        retries: Int = 2,
+        receiveSubscription: ((Subscription) -> Void)? = nil) -> AnyPublisher<URLSession.DataTaskPublisher.Output, NetworkError> {
+        return
+            URLSession.dataTaskPublisher(urlsession: sessionBuilder.session, requestBuilder: requestBuilder)
+            .tryMap { output in
+                /// Verify that we got an HTTP Response and its status code is within the valid range, otherwise throw a NetworkError with status code
+                if let httpResponse = output.response as? HTTPURLResponse, !validHttpStatusCodes.contains(httpResponse.statusCode) {
+                    throw NetworkError.map(httpResponse.statusCode)
+                }
+                return output
             }
-            return output
-        }
-        .handleEvents(receiveSubscription: receiveSubscription) //for testing and debugging
-        .mapError { e in .handleError(error: e) }
-        .receive(on: DispatchQueue.main)
-        .requestRetry(retries: retries, requestBuilder: requestBuilder)
-        .tryCatch { networkError -> AnyPublisher<URLSession.DataTaskPublisher.Output, NetworkError> in
-            guard enableUnauthorizedPassThroughSubject else {
+            .handleEvents(receiveSubscription: receiveSubscription) //for testing and debugging
+            .mapError { e in .handleError(error: e) }
+            .receive(on: DispatchQueue.main)
+            .requestRetry(retries: retries, requestBuilder: requestBuilder)
+            .tryCatch { networkError -> AnyPublisher<URLSession.DataTaskPublisher.Output, NetworkError> in
+                guard enableUnauthorizedPassThroughSubject else {
+                    throw networkError
+                }
+                
+                switch networkError {
+                case .unauthorized, .error4xx(401):
+                    /// enableUnauthorizedPassThroughSubject is on therefore send the error via unauthorizedPassThroughSubject
+                    unauthorizedPassThroughSubject?.send(networkError)
+                default:
+                    break
+                }
+                
                 throw networkError
             }
-            
-            switch networkError {
-            case .unauthorized, .error4xx(401):
-                /// enableUnauthorizedPassThroughSubject is on therefore send the error via unauthorizedPassThroughSubject
-                unauthorizedPassThroughSubject?.send(networkError)
-            default:
-                break
+            .mapError { e in NetworkError.handleError(error: e) }
+            .eraseToAnyPublisher()
+    }
+
+    public static func fetch<T: Decodable>(
+        requestBuilder: RequestBuilder,
+        retries: Int = 2,
+        decodableType: T.Type) -> AnyPublisher<NetworkResponse<T>, NetworkError> {
+        return fetch(requestBuilder: requestBuilder, retries: retries)
+            .decodeNetworkResponse(decodable: T.self)
+            .mapError { e in
+                .handleError(error: e)
             }
-            
-            throw networkError
-        }
-        .mapError { e in NetworkError.handleError(error: e) }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
+    }
 }
 
-public func fetch<T: Decodable>(
-    requestBuilder: RequestBuilder,
-    retries: Int = 2,
-    decodableType: T.Type) -> AnyPublisher<NetworkResponse<T>, NetworkError> {
-    return fetch(requestBuilder: requestBuilder, retries: retries)
-        .decodeNetworkResponse(decodable: T.self)
-        .mapError { e in
-            .handleError(error: e)
-        }
-        .eraseToAnyPublisher()
-}
+
