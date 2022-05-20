@@ -20,31 +20,29 @@ public extension RequestBuilder {
      */
     var headers: [String: String] { return [:] }
     
-    /**
-     Default ParameterEncodingType
-     */
-    var parameterEncodingType: ParameterEncodingType {
-        return httpMethod == .get ? .urlEncoding : .jsonEncoding(options: [])
-    }
-    
-    var parameters: [String: Any] {
-        return [:]
-    }
+    var parameters: Parameters { return [:] }
     
     /**
      Generated URLRequest
      */
     var urlRequest: URLRequest {
-        var urlRequest = URLRequest(url: url, cachePolicy: urlRequestCachePolicy, timeoutInterval: 20.0)
-        urlRequest.allowsConstrainedNetworkAccess = urlRequestAllowsConstrainedNetworkAccess
-        
-        headers.forEach { (header, value) in
-            urlRequest.setValue(value, forHTTPHeaderField: header)
+        get throws {
+            var urlRequest = URLRequest(url: url,
+                                        cachePolicy: urlRequestCachePolicy,
+                                        timeoutInterval: 20.0)
+            
+            urlRequest.allowsConstrainedNetworkAccess = urlRequestAllowsConstrainedNetworkAccess
+            
+            headers.forEach { (header, value) in
+                urlRequest.setValue(value, forHTTPHeaderField: header)
+            }
+            
+            try encodeParameters(urlRequest: &urlRequest)
+            
+            urlRequest.httpMethod = httpMethod.rawValue.uppercased()
+            
+            return urlRequest
         }
-        
-        urlRequest.httpMethod = httpMethod.rawValue.uppercased()
-        
-        return urlRequest
     }
     
     var urlRequestCachePolicy: URLRequest.CachePolicy {
@@ -57,5 +55,16 @@ public extension RequestBuilder {
     
     var requiresAuthentication: Bool {
         return true
+    }
+    
+    func encodeParameters(urlRequest: inout URLRequest) throws {
+        /// Parameter Encoding
+        switch httpMethod {
+        case .get, .put, .delete:
+            ///To be implemented
+            break
+        case .post:
+            urlRequest.httpBody = try JSONParameterEncoder(options: [.sortedKeys]).encode(parameters: parameters)
+        }
     }
 }
