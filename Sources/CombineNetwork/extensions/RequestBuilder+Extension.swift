@@ -26,23 +26,22 @@ public extension RequestBuilder {
      Generated URLRequest
      */
     var urlRequest: URLRequest {
-        get throws {
-            var urlRequest = URLRequest(url: url,
-                                        cachePolicy: urlRequestCachePolicy,
-                                        timeoutInterval: 20.0)
-            
-            urlRequest.allowsConstrainedNetworkAccess = urlRequestAllowsConstrainedNetworkAccess
-            
-            headers.forEach { (header, value) in
-                urlRequest.setValue(value, forHTTPHeaderField: header)
-            }
-            
-            try encodeParameters(urlRequest: &urlRequest)
-            
-            urlRequest.httpMethod = httpMethod.rawValue.uppercased()
-            
-            return urlRequest
+        var urlRequest = URLRequest(url: url,
+                                    cachePolicy: urlRequestCachePolicy,
+                                    timeoutInterval: 20.0)
+        
+        urlRequest.allowsConstrainedNetworkAccess = urlRequestAllowsConstrainedNetworkAccess
+        
+        headers.forEach { (header, value) in
+            urlRequest.setValue(value, forHTTPHeaderField: header)
         }
+        
+        #warning("Update this in the future to throw actual errors instead of failing silently")
+        try? encodeParameters(urlRequest: &urlRequest)
+        
+        urlRequest.httpMethod = httpMethod.rawValue.uppercased()
+        
+        return urlRequest
     }
     
     var urlRequestCachePolicy: URLRequest.CachePolicy {

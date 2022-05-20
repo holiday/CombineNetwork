@@ -2,13 +2,12 @@ import XCTest
 @testable import CombineNetwork
 
 final class CombineNetworkTests: XCTestCase {
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
+    
+    struct CustomRequest: RequestBuilder {
+        var url: URL = URL(string: "http://example.com")!
     }
-
-    static var allTests = [
-        ("testExample", testExample),
-    ]
+    
+    func test_RequestBuilder() {
+        XCTAssertNotNil(CustomRequest().url)
+    }
 }
