@@ -53,12 +53,7 @@ public extension Publishers {
                 switch e {
                 case .unauthorized:
                     guard let refreshTokenPublisher = refreshTokenPublisherProvider?.refreshTokenPublisher() else {
-                        return sessionBuilder.session
-                        .dataTaskPublisher(for: requestBuilder.urlRequest)
-                        .mapError { e in .handleError(error: e) }
-                        .receive(on: DispatchQueue.main)
-                        .requestRetry(retries: retries - 1, requestBuilder: requestBuilder)
-                        .eraseToAnyPublisher()
+                        return Fail(error: e).eraseToAnyPublisher()
                     }
                     
                     #warning("use async await here")
