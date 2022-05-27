@@ -17,15 +17,6 @@ public extension Publisher where Self.Output == URLSession.DataTaskPublisher.Out
 }
 
 /**
- This protocol is needed for Unit Testing purposes mainly and to
- decople or dependency inject the Publisher that will ultimately make the
- request to refresh token. We are now able to inject a custom provider for testing purposes
- */
-public protocol RefreshTokenPublisherProvider {
-    func refreshTokenPublisher() -> AnyPublisher<URLSession.DataTaskPublisher.Output, NetworkError>
-}
-
-/**
  RequestRetryPublisher
  */
 public extension Publishers {
@@ -58,7 +49,7 @@ public extension Publishers {
                     
                     #warning("use async await here")
                     return refreshTokenPublisher.flatMap { response in
-                            sessionBuilder.session
+                            CN.sessionBuilder.session
                             .dataTaskPublisher(for: requestBuilder.urlRequest)
                             .mapError { e in .handleError(error: e) }
                             .receive(on: DispatchQueue.main)

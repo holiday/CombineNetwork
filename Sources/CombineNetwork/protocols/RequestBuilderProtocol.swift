@@ -28,4 +28,6 @@ public protocol RequestBuilder {
     /// This method is called when the urlRequest is about to be constructed
     /// Override it to perform custom parameter encoding
     func encodeParameters(urlRequest: inout URLRequest) throws
+    
+    var refreshTokenPublisherProvider: RefreshTokenPublisherProvider? { get }
 }

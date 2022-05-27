@@ -7,25 +7,21 @@
 import Foundation
 import Combine
 
-public var sessionBuilder: SessionBuilder = DefaultSessionBuilder(timeout: 30)
-
-public var validHttpStatusCodes: ClosedRange<Int> { 200...399 }
-
-/**
- In some cases you may want to disable the unauthorizedPassThroughSubject from firing
- */
-public var enableUnauthorizedPassThroughSubject = false
-
-/**
- Allows you to perform a final action before fully failing 100% (i.e. all retry attempts to recovery has failed)
- */
-public var unauthorizedPassThroughSubject: PassthroughSubject<NetworkError, Never>?
-
-public var tokenExpiredOrMissing: Bool {
-    return false
-}
-
 public struct CN {
+    public static var sessionBuilder: SessionBuilder = DefaultSessionBuilder(timeout: 30)
+
+    public static var validHttpStatusCodes: ClosedRange<Int> { 200...399 }
+    
+    /**
+     In some cases you may want to disable the unauthorizedPassThroughSubject from firing
+     */
+    public static var enableUnauthorizedPassThroughSubject = false
+
+    /**
+     Allows you to perform a final action before fully failing 100% (i.e. all retry attempts to recovery has failed)
+     */
+    public static var unauthorizedPassThroughSubject: PassthroughSubject<NetworkError, Never>?
+    
     public static func fetch(
         requestBuilder: RequestBuilder,
         retries: Int = 2,

@@ -66,4 +66,8 @@ public extension RequestBuilder {
             urlRequest.httpBody = try JSONParameterEncoder(options: [.sortedKeys]).encode(parameters: parameters)
         }
     }
+    
+    var refreshTokenPublisherProvider: RefreshTokenPublisherProvider? {
+        return nil
+    }
 }
