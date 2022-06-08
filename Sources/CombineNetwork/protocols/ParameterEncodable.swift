@@ -7,11 +7,21 @@
 
 import Foundation
 
-enum ParameterEncodableError: Error {
-    case encodingRequestParameters(_ error: Error)
+public struct AnyParameterEncodable<P>: ParameterEncodable {
+    public typealias Parameter = P
+    
+    let encodeClosure: (P) throws -> Data
+    
+    init<T: ParameterEncodable>(parameterEncodable: T) where T.Parameter == P {
+        self.encodeClosure = parameterEncodable.encode
+    }
+    
+    public func encode(parameters: P) throws -> Data {
+        try self.encodeClosure(parameters)
+    }
 }
 
 public protocol ParameterEncodable {
-    associatedtype Value
-    func encode(parameters: Parameters) throws -> Value
+    associatedtype Parameter
+    func encode(parameters: Parameter) throws -> Data
 }

@@ -8,9 +8,8 @@
 import Foundation
 
 public struct URLParameterEncoder: ParameterEncodable {
-    public typealias Value = String
-    public func encode(parameters: Parameters) throws -> Value {
+    public func encode(parameters: Parameters) throws -> Data {
         /// To be implemented as needed
-        return ""
+        return Data()
     }
 }

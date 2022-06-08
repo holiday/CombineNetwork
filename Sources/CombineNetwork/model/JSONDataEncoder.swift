@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct JSONParameterEncoder: ParameterEncodable {
+public struct JSONDataEncoder: ParameterEncodable {
     public let options: JSONSerialization.WritingOptions
     
     public func encode(parameters: Parameters) throws -> Data {

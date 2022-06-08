@@ -63,7 +63,7 @@ public extension RequestBuilder {
             ///To be implemented
             break
         case .post:
-            urlRequest.httpBody = try JSONParameterEncoder(options: [.sortedKeys]).encode(parameters: parameters)
+            urlRequest.httpBody = try JSONDataEncoder(options: [.sortedKeys]).encode(parameters: parameters)
         }
     }
     

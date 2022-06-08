@@ -6,6 +6,10 @@
 
 import Foundation
 
+enum ParameterEncodableError: Error {
+    case encodingRequestParameters(_ error: Error)
+}
+
 /**
  Universal enum for handling NetworkErrors
  */
@@ -13,6 +17,7 @@ public enum NetworkError: Error, Equatable {
     case error4xx(_ code: Int)
     case error5xx(_ code: Int)
     case urlError(_ urlError: URLError)
+    case encodingCodable
     case decodingCodable
     case decodingJWT
     case serializingJSONObject
@@ -56,7 +61,8 @@ public enum NetworkError: Error, Equatable {
             return lhsCode == rhsCode
         case (.urlError(let lhsError), .urlError(let rhsError)):
             return lhsError.code == rhsError.code
-        case (.decodingCodable, .decodingCodable),
+        case (.encodingCodable, .encodingCodable),
+            (.decodingCodable, .decodingCodable),
              (.decodingJWT, .decodingJWT),
              (.serializingJSONObject, .serializingJSONObject),
              (.badRequest, .badRequest),
@@ -65,6 +71,14 @@ public enum NetworkError: Error, Equatable {
              (.notFound, .notFound),
              (.unknown, .unknown):
             return true
+        case (.badRequest, .error4xx(let code)), (.error4xx(let code), .badRequest):
+            return .map(code) == .badRequest
+        case (.unauthorized, .error4xx(let code)), (.error4xx(let code), .unauthorized):
+            return .map(code) == .unauthorized
+        case (.forbidden, .error4xx(let code)), (.error4xx(let code), .forbidden):
+            return .map(code) == .forbidden
+        case (.notFound, .error4xx(let code)), (.error4xx(let code), .notFound):
+            return .map(code) == .notFound
         default:
             return false
         }

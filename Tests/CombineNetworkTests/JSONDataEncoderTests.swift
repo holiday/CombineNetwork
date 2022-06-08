@@ -8,8 +8,8 @@
 import XCTest
 @testable import CombineNetwork
 
-class JSONParameterEncoderTests: XCTestCase {
-    let jsonEncoder = JSONParameterEncoder(options: [.sortedKeys])
+class JSONDataEncoderTests: XCTestCase {
+    let jsonEncoder = JSONDataEncoder(options: [.sortedKeys])
     
     func test_json_encoder1() throws {
         let data = try jsonEncoder.encode(parameters: [

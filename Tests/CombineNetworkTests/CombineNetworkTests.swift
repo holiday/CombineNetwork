@@ -3,11 +3,36 @@ import XCTest
 
 final class CombineNetworkTests: XCTestCase {
     
-    struct CustomRequest: RequestBuilder {
-        var url: URL = URL(string: "http://example.com")!
+    struct TestObject: Encodable {
+        let name: String
+        
+        enum CodingKeys: String, CodingKey {
+            case name
+        }
+        
+        func encode(to encoder: Encoder) throws {
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(name, forKey: .name)
+        }
     }
     
-    func test_RequestBuilder() {
-        XCTAssertNotNil(CustomRequest().url)
+    struct CustomRequest: RequestBuilder {
+        var url: URL = URL(string: "http://example.com")!
+        
+        func encodeParameters(urlRequest: inout URLRequest) throws {
+            urlRequest.httpBody = try JSONObjectEncoder<[TestObject]>(readingOptions: [], writingOptions: []).encode(parameters: [TestObject(name: "Joe"), TestObject(name: "John")])
+        }
+    }
+    
+    func test_RequestBuilder() throws {
+        let request = CustomRequest()
+        XCTAssertNotNil(request.url)
+        
+        let jsonData = try JSONObjectEncoder<[TestObject]>(readingOptions: [], writingOptions: []).encode(parameters: [
+            TestObject(name: "Joe"), TestObject(name: "John")
+        ])
+        let jsonString = String(data: jsonData, encoding: .utf8)
+        let urlRequestJsonString = String(data: request.urlRequest.httpBody!, encoding: .utf8)
+        XCTAssertEqual(jsonString, urlRequestJsonString)
     }
 }
