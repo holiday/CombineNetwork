@@ -31,7 +31,7 @@ public struct CN {
             .tryMap { output in
                 /// Verify that we got an HTTP Response and its status code is within the valid range, otherwise throw a NetworkError with status code
                 if let httpResponse = output.response as? HTTPURLResponse, !validHttpStatusCodes.contains(httpResponse.statusCode) {
-                    throw NetworkError.map(httpResponse.statusCode)
+                    throw NetworkError.map(httpResponse.statusCode, data: output.data, response: output.response)
                 }
                 return output
             }
@@ -45,9 +45,13 @@ public struct CN {
                 }
                 
                 switch networkError {
-                case .unauthorized, .error4xx(401):
+                case .unauthorized:
                     /// enableUnauthorizedPassThroughSubject is on therefore send the error via unauthorizedPassThroughSubject
                     unauthorizedPassThroughSubject?.send(networkError)
+                case .error4xx(let code, _, _):
+                    if code == 401 {
+                        unauthorizedPassThroughSubject?.send(networkError)
+                    }
                 default:
                     break
                 }
