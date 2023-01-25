@@ -48,10 +48,8 @@ public struct CN {
                 case .unauthorized:
                     /// enableUnauthorizedPassThroughSubject is on therefore send the error via unauthorizedPassThroughSubject
                     unauthorizedPassThroughSubject?.send(networkError)
-                case .error4xx(let code, _, _):
-                    if code == 401 {
-                        unauthorizedPassThroughSubject?.send(networkError)
-                    }
+                case .error4xx(let code, _, _) where code == 401:
+                    unauthorizedPassThroughSubject?.send(networkError)
                 default:
                     break
                 }
@@ -73,6 +71,41 @@ public struct CN {
             }
             .eraseToAnyPublisher()
     }
+    
+    public static func fetch<T: Decodable>(session: URLSession = sessionBuilder.session,
+                                           requestBuilder: RequestBuilder,
+                                           decodableType: T.Type) async throws -> NetworkResponse<T> {
+        let (data, response) = try await URLSession.shared.data(for: requestBuilder.urlRequest)
+        
+        guard let response = response as? HTTPURLResponse else {
+            throw NetworkError.noResponse
+        }
+        
+        switch response.statusCode {
+        case 200...299:
+            if let decoded = try? JSONDecoder().decode(T.self, from: data) {
+                return NetworkResponse(value: decoded, response: response)
+            } else {
+                throw NetworkError.decodingCodable
+            }
+        default:
+            throw NetworkError.map(response.statusCode, data: data, response: response)
+        }
+    }
+    
+    public static func fetch(session: URLSession = sessionBuilder.session,
+                             requestBuilder: RequestBuilder) async throws -> URLResponse {
+        let (data, response) = try await URLSession.shared.data(for: requestBuilder.urlRequest)
+        
+        guard let response = response as? HTTPURLResponse else {
+            throw NetworkError.noResponse
+        }
+        
+        switch response.statusCode {
+        case 200...299:
+            return response
+        default:
+            throw NetworkError.map(response.statusCode, data: data, response: response)
+        }
+    }
 }
-
-

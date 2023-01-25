@@ -26,6 +26,7 @@ public enum NetworkError: Error {
     case forbidden(data: Data, response: URLResponse)
     case notFound(data: Data, response: URLResponse)
     case unknown
+    case noResponse
     
     public static func handleError(error: Error) -> NetworkError {
         switch error {
@@ -106,6 +107,39 @@ extension NetworkError: Equatable {
             return data1.base64EncodedData() == data2.base64EncodedData() && response1.url == response2.url
         default:
             return false
+        }
+    }
+}
+
+extension NetworkError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .error4xx(let code, data: _, response: _):
+            return NSLocalizedString("Error 4xx, code: \(code)", comment: "error4xx")
+        case .error5xx(let code, data: _, response: _):
+            return NSLocalizedString("Error 5xx, code: \(code)", comment: "error5xx")
+        case .urlError(let error):
+            return error.localizedDescription
+        case .encodingCodable:
+            return NSLocalizedString("encodingCodable", comment: "encodingCodable")
+        case .decodingCodable:
+            return NSLocalizedString("decodingCodable", comment: "decodingCodable")
+        case .decodingJWT:
+            return NSLocalizedString("decodingJWT", comment: "decodingJWT")
+        case .serializingJSONObject:
+            return NSLocalizedString("serializingJSONObject", comment: "serializingJSONObject")
+        case .badRequest(data: _, response: _):
+            return NSLocalizedString("400 badRequest", comment: "400 badRequest")
+        case .unauthorized(data: _, response: _):
+            return NSLocalizedString("410 unauthorized", comment: "401 unauthorized")
+        case .forbidden(data: _, response: _):
+            return NSLocalizedString("403 forbidden", comment: "403 forbidden")
+        case .notFound(data: _, response: _):
+            return NSLocalizedString("404 notFound", comment: "404 notFound")
+        case .unknown:
+            return NSLocalizedString("unknown", comment: "unknown")
+        case .noResponse:
+            return NSLocalizedString("noResponse", comment: "noResponse")
         }
     }
 }
