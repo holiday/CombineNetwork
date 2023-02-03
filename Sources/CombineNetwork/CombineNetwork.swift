@@ -40,13 +40,13 @@ public struct CN {
             .receive(on: DispatchQueue.main)
             .requestRetry(retries: retries, requestBuilder: requestBuilder)
             .tryCatch { networkError -> AnyPublisher<URLSession.DataTaskPublisher.Output, NetworkError> in
-                guard enableUnauthorizedPassThroughSubject else {
+                /// enableUnauthorizedPassThroughSubject is on therefore send the error via unauthorizedPassThroughSubject
+                guard enableUnauthorizedPassThroughSubject && requestBuilder.shouldPublish401 else {
                     throw networkError
                 }
                 
                 switch networkError {
                 case .unauthorized:
-                    /// enableUnauthorizedPassThroughSubject is on therefore send the error via unauthorizedPassThroughSubject
                     unauthorizedPassThroughSubject?.send(networkError)
                 case .error4xx(let code, _, _) where code == 401:
                     unauthorizedPassThroughSubject?.send(networkError)
@@ -75,7 +75,7 @@ public struct CN {
     public static func fetch<T: Decodable>(session: URLSession = sessionBuilder.session,
                                            requestBuilder: RequestBuilder,
                                            decodableType: T.Type) async throws -> NetworkResponse<T> {
-        let (data, response) = try await URLSession.shared.data(for: requestBuilder.urlRequest)
+        let (data, response) = try await session.data(for: requestBuilder.urlRequest)
         
         guard let response = response as? HTTPURLResponse else {
             throw NetworkError.noResponse
@@ -88,6 +88,14 @@ public struct CN {
             } else {
                 throw NetworkError.decodingCodable
             }
+        case 401:
+            let error = NetworkError.unauthorized(data: data, response: response)
+            
+            if requestBuilder.shouldPublish401 {
+                unauthorizedPassThroughSubject?.send(error)
+            }
+            
+            throw error
         default:
             throw NetworkError.map(response.statusCode, data: data, response: response)
         }
@@ -95,7 +103,7 @@ public struct CN {
     
     public static func fetch(session: URLSession = sessionBuilder.session,
                              requestBuilder: RequestBuilder) async throws -> URLResponse {
-        let (data, response) = try await URLSession.shared.data(for: requestBuilder.urlRequest)
+        let (data, response) = try await session.data(for: requestBuilder.urlRequest)
         
         guard let response = response as? HTTPURLResponse else {
             throw NetworkError.noResponse
@@ -104,6 +112,14 @@ public struct CN {
         switch response.statusCode {
         case 200...299:
             return response
+        case 401:
+            let error = NetworkError.unauthorized(data: data, response: response)
+            
+            if requestBuilder.shouldPublish401 {
+                unauthorizedPassThroughSubject?.send(error)
+            }
+            
+            throw error
         default:
             throw NetworkError.map(response.statusCode, data: data, response: response)
         }

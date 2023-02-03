@@ -56,6 +56,10 @@ public extension RequestBuilder {
         return true
     }
     
+    var shouldPublish401: Bool {
+        return true
+    }
+    
     func encodeParameters(urlRequest: inout URLRequest) throws {
         /// Parameter Encoding
         switch httpMethod {

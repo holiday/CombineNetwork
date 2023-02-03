@@ -31,8 +31,17 @@ struct ErrorResponse: Codable {
 
 @MainActor
 class ContentViewModel: ObservableObject {
-    
     private var cancellables = Set<AnyCancellable>()
+    private var passThroughSubject = PassthroughSubject<NetworkError, Never>()
+    
+    init() {
+        CN.enableUnauthorizedPassThroughSubject = true
+        CN.unauthorizedPassThroughSubject = passThroughSubject
+        
+        passThroughSubject.sink { networkError in
+            print("Received 401: \(networkError)")
+        }.store(in: &cancellables)
+    }
     
     func test_example1() {
         CN.fetch(requestBuilder: TestRequest())

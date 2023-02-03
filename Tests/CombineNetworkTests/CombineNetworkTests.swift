@@ -19,6 +19,10 @@ final class CombineNetworkTests: XCTestCase {
     struct CustomRequest: RequestBuilder {
         var url: URL = URL(string: "http://example.com")!
         
+        var shouldPublish401: Bool {
+            return false
+        }
+        
         func encodeParameters(urlRequest: inout URLRequest) throws {
             urlRequest.httpBody = try JSONObjectEncoder<[TestObject]>(readingOptions: [], writingOptions: []).encode(parameters: [TestObject(name: "Joe"), TestObject(name: "John")])
         }

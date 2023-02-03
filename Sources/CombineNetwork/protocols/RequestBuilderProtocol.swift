@@ -25,6 +25,9 @@ public protocol RequestBuilder {
     var parameters: Parameters { get }
     var requiresAuthentication: Bool { get }
     
+    /// Set this to true if you want to prevent this request notifying the unauthorizedPassThroughSubject
+    var shouldPublish401: Bool { get }
+    
     /// This method is called when the urlRequest is about to be constructed
     /// Override it to perform custom parameter encoding
     func encodeParameters(urlRequest: inout URLRequest) throws
